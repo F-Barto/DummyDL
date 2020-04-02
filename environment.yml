@@ -1,0 +1,15 @@
+channels:
+  - pytorch
+  - defaults
+dependencies:
+  - python=3.7
+  - cudatoolkit=10.1
+  - pytorch
+  - torchvision
+  - pip:
+    - watermark
+    - pytest
+    - opencv-python
+    - click
+    - pytorch-lightning
+    - wandb
