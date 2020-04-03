@@ -35,18 +35,22 @@ def main(gpus, nodes, fast_dev_run, project_config, hparams):
     model = SimpleClassifier(hparams, train_dataset, val_dataset, test_dataset)
 
     # default used by the Trainer
+
+
+    wandb_logger = WandbLogger(
+        save_dir=project_config.output_dir + '/SimpleClassifier-Mnist',
+        #log_model=True
+    )
+
+    print(f"SimpleClassifier-Mnist-{wandb_logger.experiment.id}")
+
     checkpoint_callback = ModelCheckpoint(
-        filepath=project_config.output_dir,
+        filepath=project_config.output_dir+'/SimpleClassifier-Mnist',
         save_top_k=True,
         verbose=True,
         monitor='val_loss',
         mode='min',
-        prefix=''
-    )
-
-    wandb_logger = WandbLogger(
-        save_dir=project_config.output_dir,
-        #log_model=True
+        prefix=wandb_logger.experiment.id
     )
 
     print(wandb_logger)
