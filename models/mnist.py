@@ -18,7 +18,7 @@ class SimpleClassifier(pl.LightningModule):
         self.test_dataset = test_dataset
         self.hparams = hparams
 
-        # mnist images are (1, 28, 28) (channels, width, height)
+        # models images are (1, 28, 28) (channels, width, height)
         # just a very very simple model
         self.l1 = torch.nn.Linear(28 * 28, hparams.channels[0])
         self.l2 = torch.nn.Linear(hparams.channels[0], hparams.channels[1])

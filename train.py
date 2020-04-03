@@ -10,7 +10,7 @@ from torch.utils.data import random_split
 from pytorch_lightning import Trainer
 from pytorch_lightning.loggers import WandbLogger
 
-from mnist import SimpleClassifier
+from models.mnist import SimpleClassifier
 from config_utils import YParams
 
 wandb_logger = WandbLogger()
