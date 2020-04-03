@@ -15,7 +15,7 @@ class YParams():
         """
         with open(config_file) as fp:
             dic_params = YAML().load(fp)[config_profile].items()
-            for k, v in YAML().load(fp)[config_profile].items():
+            for k, v in dic_params:
                 self.add_hparam(k, v)
 
     def add_hparam(self, name, value):
@@ -43,6 +43,9 @@ class YParams():
 @click.argument('config_profile', type=str)
 @click.argument('params', nargs=-1, type=str)
 def main(config_file, config_profile, params):
+    print(f"config_file: {config_file} | (type: {type(config_file)})")
+    print(f"config_profile: {config_profile} | (type: {type(config_profile)})")
+    print(f"params: {params} | (type: {type(params)})")
     yparams = YParams(config_file, config_profile)
     if params is not None:
         for param in params:
