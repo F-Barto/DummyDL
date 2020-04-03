@@ -28,7 +28,7 @@ def prepare_data(data_basedir):
 
     return mnist_train, mnist_val, mnist_test
 
-def main(gpus, nodes, project_config, hparams):
+def main(gpus, nodes, fast_dev_run, project_config, hparams):
     train_dataset, val_dataset, test_dataset = prepare_data(project_config.input_dir)
 
     # init module
@@ -57,7 +57,8 @@ def main(gpus, nodes, project_config, hparams):
         nb_gpu_nodes=nodes,
         checkpoint_callback=checkpoint_callback,
         logger=wandb_logger,
-        check_val_every_n_epoch=project_config.check_val_every_n_epoch
+        check_val_every_n_epoch=project_config.check_val_every_n_epoch,
+        fast_dev_run=fast_dev_run
     )
     trainer.fit(model)
     trainer.test(model)
@@ -71,6 +72,7 @@ if __name__ == '__main__':
     parser.add_argument('--model_config_profile', type=str)
     parser.add_argument('--project_config_file', type=str)
     parser.add_argument('--project_config_profile', type=str)
+    parser.add_argument("--fast_dev_run", default=False, action="store_true", help="if flag given, runs 1 batch of train, test and val to find any bugs")
 
     # parse params
     args = parser.parse_args()
@@ -78,4 +80,4 @@ if __name__ == '__main__':
     hparams = YParams(args.model_config_file, args.model_config_profile)
     project_config = YParams(args.project_config_file, args.project_config_profile)
 
-    main(args.gpus, args.nodes, project_config, hparams)
+    main(args.gpus, args.nodes, args.fast_dev_run, project_config, hparams)
