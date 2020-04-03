@@ -12,7 +12,8 @@ First, install dependencies
 # clone project   
 git clone https://github.com/YourGithubName/DummyDL   
 cd DummyDL
-
+```
+```bash
 # create conda env (or use your usual env management system) and install dependancies 
 conda env create --name DummyDL_env -f environment.yml
 conda activate DummyDL
