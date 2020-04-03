@@ -3,6 +3,7 @@ This file runs the main training/val loop, etc... using Lightning Trainer
 """
 
 from argparse import ArgumentParser
+from pathlib import Path
 from torchvision.datasets import MNIST
 from torch.utils.data import random_split
 import torchvision.transforms as transforms
@@ -34,18 +35,22 @@ def main(gpus, nodes, fast_dev_run, project_config, hparams):
     # init module
     model = SimpleClassifier(hparams, train_dataset, val_dataset, test_dataset)
 
-    # default used by the Trainer
+    base_output_dir = Path(project_config.output_dir)
+    experiment_output_dir = base_output_dir / 'SimpleClassifier-Mnist'
+    experiment_output_dir.mkdir(parents=True, exist_ok=True)
 
-
+    wandb_output_dir = str(experiment_output_dir)
     wandb_logger = WandbLogger(
-        save_dir=project_config.output_dir + '/SimpleClassifier-Mnist',
+        save_dir=wandb_output_dir,
         #log_model=True
     )
 
-    print(f"SimpleClassifier-Mnist-{wandb_logger.experiment.id}")
+    run_output_dir = experiment_output_dir / f'{wandb_logger.experiment.id}'
+    run_output_dir.mkdir(parents=True, exist_ok=True)
+    run_output_dir = str(run_output_dir)
 
     checkpoint_callback = ModelCheckpoint(
-        filepath=project_config.output_dir+'/SimpleClassifier-Mnist',
+        filepath=run_output_dir,
         save_top_k=True,
         verbose=True,
         monitor='val_loss',
