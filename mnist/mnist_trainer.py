@@ -16,11 +16,11 @@ from config_utils import YParams
 wandb_logger = WandbLogger()
 
 
-def prepare_data(project_config):
+def prepare_data(data_basedir):
     # download
-    mnist_train = MNIST(os.getcwd(), train=True, download=True,
+    mnist_train = MNIST(data_basedir, train=True, download=True,
                         transform=transforms.ToTensor())
-    mnist_test = MNIST(os.getcwd(), train=False, download=True,
+    mnist_test = MNIST(data_basedir, train=False, download=True,
                        transform=transforms.ToTensor())
 
     # train/val split
@@ -29,7 +29,7 @@ def prepare_data(project_config):
     return mnist_train, mnist_val, mnist_test
 
 def main(gpus, nodes, project_config, hparams):
-    train_dataset, val_dataset, test_dataset = prepare_data(project_config)
+    train_dataset, val_dataset, test_dataset = prepare_data(project_config.input_dir)
 
     # init module
     model = SimpleClassifier(train_dataset, val_dataset, test_dataset, hparams)
@@ -39,6 +39,7 @@ def main(gpus, nodes, project_config, hparams):
         max_nb_epochs=hparams.max_nb_epochs,
         gpus=gpus,
         nb_gpu_nodes=nodes,
+        default_save_path=project_config.output_dir
     )
     trainer.fit(model, logger=wandb_logger)
 

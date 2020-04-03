@@ -4,10 +4,10 @@
 # enables us to automatically search for the best hyperparameters using other ML libraries.
 
 default: &DEFAULT
-  input_dir: /home/clear/fbartocc/working_data/
+  input_dir: /home/clear/fbartocc/working_data/test_MNIST
   train_csv: train.csv
   val_csv: val.csv
-  output_dir: /home/clear/fbartocc/output_data/
+  output_dir: /home/clear/fbartocc/output_data/test_MNIST
   log_format: '%(asctime)s:%(filename)s:%(funcName)s:[%(levelname)s] %(message)s'
   split_ratio: 0.9  # training/validation ratio
 
