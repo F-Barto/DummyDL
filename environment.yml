@@ -13,3 +13,4 @@ dependencies:
     - click
     - pytorch-lightning
     - wandb
+    - ruamel.yaml

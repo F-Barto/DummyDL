@@ -2,7 +2,6 @@ import os
 import torch
 from torch.nn import functional as F
 from torch.utils.data import DataLoader, random_split
-from torchvision.datasets import MNIST
 import torchvision.transforms as transforms
 from argparse import ArgumentParser
 
@@ -11,16 +10,19 @@ import pytorch_lightning as pl
 
 
 class SimpleClassifier(pl.LightningModule):
-    def __init__(self, hparams):
-        super(CoolSystem, self).__init__()
+    def __init__(self, train_dataset, val_dataset, test_dataset, hparams):
+        super(self).__init__()
 
+        self.train_dataset = train_dataset
+        self.val_dataset = val_dataset
+        self.test_dataset = test_dataset
         self.hparams = hparams
 
         # mnist images are (1, 28, 28) (channels, width, height)
         # just a very very simple model
-        self.l1 = torch.nn.Linear(28 * 28, 128)
-        self.l2 = torch.nn.Linear(128, 256)
-        self.l3 = torch.nn.Linear(256, 10)
+        self.l1 = torch.nn.Linear(28 * 28, hparams.channels[0])
+        self.l2 = torch.nn.Linear(hparams.channels[0], hparams.channels[1])
+        self.l3 = torch.nn.Linear(hparams.channels[1], hparams.channels[2])
 
     def forward(self, x):
         x = torch.relu(self.l1(x.view(x.size(0), -1)))
@@ -57,21 +59,6 @@ class SimpleClassifier(pl.LightningModule):
         # can return multiple optimizers and learning_rate schedulers
         return torch.optim.Adam(self.parameters(), lr=self.hparams.learning_rate)
 
-    def prepare_data(self):
-        # download
-        mnist_train = MNIST(os.getcwd(), train=True, download=True,
-                            transform=transforms.ToTensor())
-        mnist_test = MNIST(os.getcwd(), train=False, download=True,
-                           transform=transforms.ToTensor())
-
-        # train/val split
-        mnist_train, mnist_val = random_split(mnist_train, [55000, 5000])
-
-        # assign to use in dataloaders
-        self.train_dataset = mnist_train
-        self.val_dataset = mnist_val
-        self.test_dataset = mnist_test
-
     def train_dataloader(self):
         # REQUIRED
         return DataLoader(self.train_dataset, batch_size=self.hparams.batch_size)
@@ -83,19 +70,3 @@ class SimpleClassifier(pl.LightningModule):
     def test_dataloader(self):
         # REQUIRED
         return DataLoader(self.mnist_test, batch_size=self.hparams.batch_size)
-
-
-    @staticmethod
-    def add_model_specific_args(parent_parser):
-        """
-        Specify the hyperparams for this LightningModule
-        """
-        # MODEL specific
-        parser = ArgumentParser(parents=[parent_parser])
-        parser.add_argument('--learning_rate', default=0.02, type=float)
-        parser.add_argument('--batch_size', default=32, type=int)
-
-        # training specific (for this model)
-        parser.add_argument('--max_nb_epochs', default=2, type=int)
-
-        return parser

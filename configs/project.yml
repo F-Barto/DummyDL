@@ -1,0 +1,22 @@
+
+# Project configuration specifies the environment setups, resources paths and security,
+# which mostly are from engineering aspects. Separating this configuration from the models' hyperparameters
+# enables us to automatically search for the best hyperparameters using other ML libraries.
+
+default: &DEFAULT
+  input_dir: /home/clear/fbartocc/working_data/
+  train_csv: train.csv
+  val_csv: val.csv
+  output_dir: /home/clear/fbartocc/output_data/
+  log_format: '%(asctime)s:%(filename)s:%(funcName)s:[%(levelname)s] %(message)s'
+  split_ratio: 0.9  # training/validation ratio
+
+debug:
+  <<: *DEFAULT
+  input_dir: data/db.2017-12-*.json.gz
+
+deploy:
+  <<: *DEFAULT
+  instance: m4.xlarge  # cpu instance 4CPU, 16GB
+  spot_price: 0  # reserved instance
+  work_dir: /opt/workspace/

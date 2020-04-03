@@ -1,23 +1,44 @@
 """
 This file runs the main training/val loop, etc... using Lightning Trainer
 """
-from pytorch_lightning import Trainer
-from argparse import ArgumentParser
-from mnist.mnist import SimpleClassifier
 
+from argparse import ArgumentParser
+from torchvision.datasets import MNIST
+from torch.utils.data import random_split
+
+
+from pytorch_lightning import Trainer
 from pytorch_lightning.loggers import WandbLogger
+
+from mnist.mnist import SimpleClassifier
+from config_utils import YParams
 
 wandb_logger = WandbLogger()
 
-def main(hparams):
+
+def prepare_data(project_config):
+    # download
+    mnist_train = MNIST(os.getcwd(), train=True, download=True,
+                        transform=transforms.ToTensor())
+    mnist_test = MNIST(os.getcwd(), train=False, download=True,
+                       transform=transforms.ToTensor())
+
+    # train/val split
+    mnist_train, mnist_val = random_split(mnist_train, [55000, 5000])
+
+    return mnist_train, mnist_val, mnist_test
+
+def main(gpus, nodes, project_config, hparams):
+    train_dataset, val_dataset, test_dataset = prepare_data(project_config)
+
     # init module
-    model = SimpleClassifier(hparams)
+    model = SimpleClassifier(train_dataset, val_dataset, test_dataset, hparams)
 
     # most basic trainer, uses good defaults
     trainer = Trainer(
         max_nb_epochs=hparams.max_nb_epochs,
-        gpus=hparams.gpus,
-        nb_gpu_nodes=hparams.nodes,
+        gpus=gpus,
+        nb_gpu_nodes=nodes,
     )
     trainer.fit(model, logger=wandb_logger)
 
@@ -26,12 +47,15 @@ if __name__ == '__main__':
     parser = ArgumentParser(add_help=False)
     parser.add_argument('--gpus', type=str, default=None)
     parser.add_argument('--nodes', type=int, default=1)
-
-    # give the module a chance to add own params
-    # good practice to define LightningModule speficic params in the module
-    parser = SimpleClassifier.add_model_specific_args(parser)
+    parser.add_argument('--model_config_file', type=str)
+    parser.add_argument('--model_config_profile', type=str)
+    parser.add_argument('--project_config_file', type=str)
+    parser.add_argument('--project_config_profile', type=str)
 
     # parse params
-    hparams = parser.parse_args()
+    args = parser.parse_args()
 
-    main(hparams)
+    hparams = YParams(args.model_config_file, args.model_config_profile)
+    project_config = YParams(args.project_config_file, args.project_config_profile)
+
+    main(args.gpus, args.nodes, project_config, hparams)

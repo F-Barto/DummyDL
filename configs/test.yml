@@ -1,0 +1,14 @@
+default: &DEFAULT
+  batch_size: 100
+  channels: [256 , 128, 10] # last is the number of classes
+  metric: cosine
+  max_nb_epochs: 50
+  optimizer: rmsp
+  learning_rate: 1.0e-4
+  decay_rate: 0.97
+  loss: logisitc
+
+large:
+  <<: *DEFAULT
+  channels: [512 , 256, 10] # last is the number of classes
+  additional_param: 'test'
