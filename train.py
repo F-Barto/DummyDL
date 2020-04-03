@@ -5,15 +5,15 @@ This file runs the main training/val loop, etc... using Lightning Trainer
 from argparse import ArgumentParser
 from torchvision.datasets import MNIST
 from torch.utils.data import random_split
+import torchvision.transforms as transforms
 
 
 from pytorch_lightning import Trainer
 from pytorch_lightning.loggers import WandbLogger
+from pytorch_lightning.callbacks import ModelCheckpoint
 
 from models.mnist import SimpleClassifier
 from config_utils import YParams
-
-wandb_logger = WandbLogger()
 
 
 def prepare_data(data_basedir):
@@ -32,16 +32,35 @@ def main(gpus, nodes, project_config, hparams):
     train_dataset, val_dataset, test_dataset = prepare_data(project_config.input_dir)
 
     # init module
-    model = SimpleClassifier(train_dataset, val_dataset, test_dataset, hparams)
+    model = SimpleClassifier(hparams, train_dataset, val_dataset, test_dataset)
+
+    # default used by the Trainer
+    checkpoint_callback = ModelCheckpoint(
+        filepath=project_config.output_dir,
+        save_top_k=True,
+        verbose=True,
+        monitor='val_loss',
+        mode='min',
+        prefix=''
+    )
+
+    wandb_logger = WandbLogger(
+        name='simpleMNIST',
+        save_dir=project_config.output_dir,
+        #log_model=True
+    )
 
     # most basic trainer, uses good defaults
     trainer = Trainer(
-        max_nb_epochs=hparams.max_nb_epochs,
+        max_epochs =hparams.max_nb_epochs,
         gpus=gpus,
         nb_gpu_nodes=nodes,
-        default_save_path=project_config.output_dir
+        checkpoint_callback=checkpoint_callback,
+        logger=wandb_logger,
+        check_val_every_n_epoch=project_config.check_val_every_n_epoch
     )
-    trainer.fit(model, logger=wandb_logger)
+    trainer.fit(model)
+    trainer.test(model)
 
 
 if __name__ == '__main__':

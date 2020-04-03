@@ -6,6 +6,7 @@
 default: &DEFAULT
   input_dir: /home/clear/fbartocc/working_data/test_MNIST
   output_dir: /home/clear/fbartocc/output_data/test_MNIST
+  check_val_every_n_epoch: 5
   # log_format: '%(asctime)s:%(filename)s:%(funcName)s:[%(levelname)s] %(message)s'
   # split_ratio: 0.9  # training/validation ratio
 

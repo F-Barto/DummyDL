@@ -1,5 +1,8 @@
 #! /bin/bash
 
+WANBKEY=$(<../wandb.key)
+wandb login $WANBKEY
+
 CONFIG_DIR="../configs/"
 
 python ../train.py \

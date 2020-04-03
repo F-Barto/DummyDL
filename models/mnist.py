@@ -1,8 +1,7 @@
 import os
 import torch
 from torch.nn import functional as F
-from torch.utils.data import DataLoader, random_split
-import torchvision.transforms as transforms
+from torch.utils.data import DataLoader
 from argparse import ArgumentParser
 
 import pytorch_lightning as pl
@@ -10,8 +9,8 @@ import pytorch_lightning as pl
 
 
 class SimpleClassifier(pl.LightningModule):
-    def __init__(self, train_dataset, val_dataset, test_dataset, hparams):
-        super(self).__init__()
+    def __init__(self, hparams, train_dataset, val_dataset, test_dataset):
+        super(SimpleClassifier, self).__init__()
 
         self.train_dataset = train_dataset
         self.val_dataset = val_dataset
@@ -33,25 +32,55 @@ class SimpleClassifier(pl.LightningModule):
         # REQUIRED
         x, y = batch
         y_hat = self(x)
-        return {'loss': F.cross_entropy(y_hat, y)}
+
+        loss = F.cross_entropy(y_hat, y)
+
+        wandb_logs = {'train_loss': loss}
+        results = {
+            'loss': loss,
+            'log': wandb_logs,
+            'progress_bar': wandb_logs
+        }
+
+        return results
 
     def validation_step(self, batch, batch_idx):
         x, y = batch
         y_hat = self(x)
-        return {'val_loss': F.cross_entropy(y_hat, y)}
+
+        val_loss = F.cross_entropy(y_hat, y)
+
+        return {'val_loss': val_loss}
 
     def validation_epoch_end(self, outputs):
         val_loss_mean = torch.stack([x['val_loss'] for x in outputs]).mean()
-        return {'val_loss_mean': val_loss_mean}
+
+        wandb_logs = {'val_loss': val_loss_mean}
+        results = {
+            'val_loss_mean': val_loss_mean,
+            'log': wandb_logs,
+            'progress_bar': wandb_logs
+        }
+
+        return results
 
     def test_step(self, batch, batch_idx):
         x, y = batch
         y_hat = self(x)
-        return {'test_loss': F.cross_entropy(y_hat, y)}
+
+        test_loss = F.cross_entropy(y_hat, y)
+        return {'test_loss': test_loss}
 
     def test_epoch_end(self, outputs):
         test_loss_mean = torch.stack([x['test_loss'] for x in outputs]).mean()
-        return {'test_loss_mean': test_loss_mean}
+
+        wandb_logs = {'test_loss': test_loss_mean}
+        results = {
+            'test_losss_mean': test_loss_mean,
+            'log': wandb_logs,
+            'progress_bar': wandb_logs
+        }
+        return results
 
 
     def configure_optimizers(self):
@@ -65,8 +94,8 @@ class SimpleClassifier(pl.LightningModule):
 
     def val_dataloader(self):
         # REQUIRED
-        return DataLoader(self.mnist_val, batch_size=self.hparams.batch_size)
+        return DataLoader(self.val_dataset, batch_size=self.hparams.batch_size)
 
     def test_dataloader(self):
         # REQUIRED
-        return DataLoader(self.mnist_test, batch_size=self.hparams.batch_size)
+        return DataLoader(self.test_dataset, batch_size=self.hparams.batch_size)
