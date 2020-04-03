@@ -7,7 +7,8 @@ from pathlib import Path
 from torchvision.datasets import MNIST
 from torch.utils.data import random_split
 import torchvision.transforms as transforms
-
+import torch
+import numpy as np
 
 from pytorch_lightning import Trainer
 from pytorch_lightning.loggers import WandbLogger
@@ -30,6 +31,9 @@ def prepare_data(data_basedir):
     return mnist_train, mnist_val, mnist_test
 
 def main(gpus, nodes, fast_dev_run, project_config, hparams):
+    torch.manual_seed(0)
+    np.random.seed(0)
+
     train_dataset, val_dataset, test_dataset = prepare_data(project_config.input_dir)
 
     # init module
@@ -55,7 +59,7 @@ def main(gpus, nodes, fast_dev_run, project_config, hparams):
         verbose=True,
         monitor='val_loss',
         mode='min',
-        prefix=wandb_logger.experiment.id
+        prefix=f'{wandb_logger.experiment.id}-'
     )
 
     print(wandb_logger)
