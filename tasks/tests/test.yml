@@ -1,0 +1,11 @@
+default: &DEFAULT
+  batch_size: 100 # int
+  channels: [256 , 128, 10] # int list
+  metric: cosine # string
+  learning_rate: 1.0e-4 # float with exponant
+  decay_rate: 0.97 # float
+
+large:
+  <<: *DEFAULT
+  channels: [512 , 256, 10] # modified int list
+  additional_param: test

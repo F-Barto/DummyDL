@@ -11,4 +11,3 @@ default: &DEFAULT
 large:
   <<: *DEFAULT
   channels: [512 , 256, 10] # last is the number of classes
-  additional_param: 'test'

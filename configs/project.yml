@@ -5,18 +5,11 @@
 
 default: &DEFAULT
   input_dir: /home/clear/fbartocc/working_data/test_MNIST
-  train_csv: train.csv
-  val_csv: val.csv
   output_dir: /home/clear/fbartocc/output_data/test_MNIST
-  log_format: '%(asctime)s:%(filename)s:%(funcName)s:[%(levelname)s] %(message)s'
-  split_ratio: 0.9  # training/validation ratio
+  # log_format: '%(asctime)s:%(filename)s:%(funcName)s:[%(levelname)s] %(message)s'
+  # split_ratio: 0.9  # training/validation ratio
 
-debug:
+fashion:
   <<: *DEFAULT
-  input_dir: data/db.2017-12-*.json.gz
-
-deploy:
-  <<: *DEFAULT
-  instance: m4.xlarge  # cpu instance 4CPU, 16GB
-  spot_price: 0  # reserved instance
-  work_dir: /opt/workspace/
+  input_dir: /home/clear/fbartocc/working_data/test_MNIST_fashion
+  output_dir: /home/clear/fbartocc/output_data/test_MNIST_fashion

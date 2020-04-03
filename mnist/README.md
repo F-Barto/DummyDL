@@ -7,7 +7,7 @@
 python mnist_trainer.py
 ````
 
-### GPU
+### GPU / Multi-GPU
 ````bash
 python mnist_trainer.py --gpus '0,1,2,3'
 ````

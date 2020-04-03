@@ -1,4 +1,5 @@
 from ruamel.yaml import YAML
+import click
 
 class YParams():
     def __init__(self, config_file, config_profile):
@@ -36,8 +37,18 @@ class YParams():
                 raise ValueError(f'Multi-valued hyperparameters cannot be empty: {name}')
         setattr(self, name, value)
 
+
+@click.command()
+@click.argument('config_file', type=click.Path(exists=True))
+@click.argument('config_profile', type=str)
+@click.argument('params', nargs=-1, type=str)
+def main(config_file, config_profile, params):
+    yparams = YParams(config_file, config_profile)
+    if params is not None:
+        for param in params:
+            print(getattr(yparams, param))
+
+
 if __name__ == "__main__":
-    yparams = YParams('./configs/test.yml', 'large')
-    print(yparams.channels)
-    print(yparams.additional_param)
+    main()
 
