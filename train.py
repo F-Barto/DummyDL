@@ -45,10 +45,11 @@ def main(gpus, nodes, fast_dev_run, project_config, hparams):
     )
 
     wandb_logger = WandbLogger(
-        name='simpleMNIST',
         save_dir=project_config.output_dir,
         #log_model=True
     )
+
+    print(wandb_logger)
 
     # most basic trainer, uses good defaults
     trainer = Trainer(
